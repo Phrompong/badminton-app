@@ -3,7 +3,6 @@ import { Dropdown, MenuProps, message, Modal, Space } from "antd";
 import TextArea from "antd/es/input/TextArea";
 import { FC, useEffect, useState } from "react";
 import { DownOutlined } from "@ant-design/icons";
-import { useSearchParams } from "next/navigation";
 import { createPlayer } from "@/app/actions/player";
 
 const levelOptions = [
@@ -34,8 +33,6 @@ const title = () => {
     </div>
   );
 };
-
-const playersArray = [1, 2, 3, 4, 5];
 
 interface IImportPlayerFooterProps {
   onClear?: () => void;
@@ -83,6 +80,9 @@ export const ImportPlayerModal: FC<IImportPlayerModalProps> = ({
     });
 
     await createPlayer(obj);
+
+    message.success("นำเข้าผู้เล่นเรียบร้อย");
+    onCancel?.();
   };
 
   const handleChangeLevel = (index: number, level: string) => {
@@ -107,6 +107,13 @@ export const ImportPlayerModal: FC<IImportPlayerModalProps> = ({
       }))
     );
   };
+
+  useEffect(() => {
+    if (!open) {
+      setPlayers("");
+      setPreviewPlayers([]);
+    }
+  }, [open]);
 
   useEffect(() => {
     previewImportPlayers(players);

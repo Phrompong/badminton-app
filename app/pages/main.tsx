@@ -3,7 +3,7 @@ import { TextInput } from "@/components/textInput";
 import { Copy, Users } from "lucide-react";
 import Card from "@/components/card";
 import { getSessionByRoomCode } from "../actions/session";
-import { useEffect, useState } from "react";
+import { FC, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { message } from "antd";
 import { Skeleton } from "antd";
@@ -15,26 +15,11 @@ import EditPlayerModal from "@/components/modals/editPlayerModal";
 import { copyText } from "@/utils/general";
 import { getPlayersBySessionId } from "../actions/player";
 
-const data = [
-  {
-    id: 1,
-    status: "เช็คอิน",
-    name: "สมชาย ใจดี",
-    level: "กลาง",
-    games: 10,
-    payment: "ชำระแล้ว",
-  },
-  {
-    id: 2,
-    status: "เช็คอิน",
-    name: "มะลิ ตั้งใจ",
-    level: "เริ่มต้น",
-    games: 5,
-    payment: "ค้างชำระ",
-  },
-];
+interface IMainProps {
+  refresh?: number;
+}
 
-const Main = () => {
+const Main: FC<IMainProps> = ({ refresh }) => {
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
   const router = useRouter();
@@ -94,7 +79,7 @@ const Main = () => {
     if (!code) return;
 
     initSession(code);
-  }, [code]);
+  }, [code, refresh]);
 
   return (
     <>
@@ -141,7 +126,7 @@ const Main = () => {
             handleClickEditPlayer={handleClickEditPlayer}
           />
           <TableMobile
-            data={data}
+            data={playersData}
             className="block lg:hidden"
             handleClickPayment={handleClickPayment}
             handleClickEditPlayer={handleClickEditPlayer}

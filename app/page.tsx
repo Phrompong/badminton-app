@@ -15,41 +15,26 @@ import Image from "next/image";
 import { title } from "process";
 import { useEffect, useState } from "react";
 import { createUser, getUsers } from "./actions/user";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Session from "./pages/session";
 import Main from "./pages/main";
 
-const data = [
-  {
-    id: 1,
-    status: "เช็คอิน",
-    name: "สมชาย ใจดี",
-    level: "กลาง",
-    games: 10,
-    payment: "ชำระแล้ว",
-  },
-  {
-    id: 2,
-    status: "เช็คอิน",
-    name: "มะลิ ตั้งใจ",
-    level: "เริ่มต้น",
-    games: 5,
-    payment: "ค้างชำระ",
-  },
-];
-
 export default function Page() {
   const searchParams = useSearchParams();
-
   const code = searchParams.get("code") || "";
-
   const [isImportModalPlayerOpen, setIsImportModalPlayerOpen] =
     useState<boolean>(false);
   const [isSettingModalOpen, setIsSettingModalOpen] = useState<boolean>(false);
   const [isRandomPlayerModalOpen, setIsRandomPlayerModalOpen] =
     useState<boolean>(false);
+  const [refresh, setRefresh] = useState<number>(0);
 
   useEffect(() => {}, []);
+
+  const handelCloseImportPlayerModal = () => {
+    setIsImportModalPlayerOpen(false);
+    setRefresh((prev) => prev + 1);
+  };
 
   return (
     <>
@@ -78,16 +63,14 @@ export default function Page() {
         </header>
         <main className="p-1">
           <div className="max-w-7xl mx-20 mx-auto flex flex-col gap-6">
-            {code ? <Main /> : <Session />}
+            {code ? <Main refresh={refresh} /> : <Session />}
           </div>
         </main>
       </div>
 
       <ImportPlayerModal
         open={isImportModalPlayerOpen}
-        onCancel={() => {
-          setIsImportModalPlayerOpen(false);
-        }}
+        onCancel={handelCloseImportPlayerModal}
       />
 
       <SettingModal
