@@ -99,7 +99,7 @@ const SessionModal = ({ open, onCancel }: ISessionModalProps) => {
 
       setTimeout(() => {
         const params = new URLSearchParams(searchParams.toString());
-        params.set("code", payload.roomCode);
+        params.set("code", value.roomCode);
         router.replace(`?${params.toString()}`);
         onCancel?.();
       }, 1000);

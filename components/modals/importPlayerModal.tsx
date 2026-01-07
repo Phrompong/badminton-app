@@ -82,6 +82,7 @@ export const ImportPlayerModal: FC<IImportPlayerModalProps> = ({
         sessionId: session?.id ?? "",
         name,
         level,
+        isPlaying: false,
       };
     });
 

@@ -78,3 +78,31 @@ export async function getAllPlayers(sessionId: string) {
     },
   });
 }
+
+export async function getAllOnlinePlayers(sessionId: string) {
+  return await prisma.player.findMany({
+    where: {
+      sessionId,
+      isActive: true,
+      isOnline: true,
+      isPlaying: false,
+    },
+  });
+}
+
+export async function updatePlayStatus(playerId: string, isPlaying: boolean) {
+  try {
+    return await prisma.player.update({
+      where: {
+        id: playerId,
+      },
+      data: {
+        isPlaying,
+        updatedDate: new Date(),
+      },
+    });
+  } catch (error) {
+    console.error("Error updating play status:", error);
+    throw error;
+  }
+}

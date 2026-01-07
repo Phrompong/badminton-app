@@ -10,22 +10,38 @@ export async function createSession(params: CreateSessionInput) {
   try {
     const actorId = params.createdBy ?? SYSTEM_USER_ID;
     const startAt = new Date(params.startAt);
+    const courtCount = Number(params.courtCount) || 0;
 
-    const result = await prisma.session.create({
-      data: {
-        name: params.name,
-        startAt,
-        location: params.location,
-        playerCount: params.playerCount ?? 0,
-        courtCount: params.courtCount,
-        roomCode: params.roomCode,
-        amountPerGame: params.amountPerGame,
-        createdBy: actorId,
-        updatedBy: actorId,
-      },
+    const session = await prisma.$transaction(async (tx) => {
+      const createdSession = await tx.session.create({
+        data: {
+          name: params.name,
+          startAt,
+          location: params.location,
+          playerCount: params.playerCount ?? 0,
+          courtCount: params.courtCount,
+          roomCode: params.roomCode,
+          amountPerGame: params.amountPerGame,
+          createdBy: actorId,
+          updatedBy: actorId,
+        },
+      });
+
+      if (courtCount > 0) {
+        const courts = Array.from({ length: courtCount }, (_, index) => ({
+          sessionId: createdSession.id,
+          name: `สนาม ${index + 1}`,
+          createdBy: actorId,
+          updatedBy: actorId,
+        }));
+
+        await tx.court.createMany({ data: courts });
+      }
+
+      return createdSession;
     });
 
-    return result;
+    return { id: session.id, roomCode: session.roomCode };
   } catch (error) {
     console.error("Error creating session:", error);
     throw error;
@@ -69,7 +85,7 @@ export async function patchSession(params: {
       },
     });
 
-    return result;
+    return { id: result.id };
   } catch (error) {
     console.error("Error patch session:", error);
     throw error;
