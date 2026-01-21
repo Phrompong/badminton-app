@@ -59,6 +59,7 @@ type SessionFormValues = {
   courtCount?: number | string;
   roomCode: string;
   amountPerGame: number;
+  courtNames: string[];
 };
 
 interface ISessionModalProps {
@@ -70,6 +71,7 @@ const SessionModal = ({ open, onCancel }: ISessionModalProps) => {
   const [form] = Form.useForm();
   const router = useRouter();
   const searchParams = useSearchParams();
+  const courtCount = Form.useWatch("courtCount", form);
 
   const handleSubmitForm = async (value: SessionFormValues) => {
     try {
@@ -91,6 +93,7 @@ const SessionModal = ({ open, onCancel }: ISessionModalProps) => {
         courtCount: Number(value.courtCount),
         roomCode: value.roomCode.trim(),
         amountPerGame: value.amountPerGame,
+        courtNames: value.courtNames,
       };
 
       await createSession(payload);
@@ -192,6 +195,36 @@ const SessionModal = ({ open, onCancel }: ISessionModalProps) => {
                   />
                 </Form.Item>
               </div>
+
+              {courtCount && (
+                <div className="flex flex-col gap-2 bg-[#F0FDF9] p-2 rounded-md border-2 border-[#CAF9E2]">
+                  <Form.List name="courtNames">
+                    {() =>
+                      Array.from(
+                        { length: Number(courtCount) || 0 },
+                        (_, index) => index + 1,
+                      ).map((item) => {
+                        return (
+                          <Form.Item<string>
+                            key={item}
+                            label={`ชื่อสนามที่ ${item}`}
+                            name={item - 1}
+                            style={formItemStyle}
+                            rules={[
+                              {
+                                required: true,
+                                message: `กรุณากรอกชื่อสนามที่ ${item}`,
+                              },
+                            ]}
+                          >
+                            <Input placeholder={`เช่น สนาม A${item}`} />
+                          </Form.Item>
+                        );
+                      })
+                    }
+                  </Form.List>
+                </div>
+              )}
 
               <div className="flex gap-2 ">
                 <Form.Item<number>

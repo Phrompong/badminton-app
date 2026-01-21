@@ -10,7 +10,6 @@ export async function createSession(params: CreateSessionInput) {
   try {
     const actorId = params.createdBy ?? SYSTEM_USER_ID;
     const startAt = new Date(params.startAt);
-    const courtCount = Number(params.courtCount) || 0;
 
     const session = await prisma.$transaction(async (tx) => {
       const createdSession = await tx.session.create({
@@ -19,7 +18,7 @@ export async function createSession(params: CreateSessionInput) {
           startAt,
           location: params.location,
           playerCount: params.playerCount ?? 0,
-          courtCount: params.courtCount,
+          courtCount: params.courtNames.length,
           roomCode: params.roomCode,
           amountPerGame: params.amountPerGame,
           createdBy: actorId,
@@ -27,15 +26,18 @@ export async function createSession(params: CreateSessionInput) {
         },
       });
 
-      if (courtCount > 0) {
-        const courts = Array.from({ length: courtCount }, (_, index) => ({
-          sessionId: createdSession.id,
-          name: `สนาม ${index + 1}`,
-          createdBy: actorId,
-          updatedBy: actorId,
-        }));
-
-        await tx.court.createMany({ data: courts });
+      let countNo = 0;
+      for (const courtName of params.courtNames) {
+        countNo += 1;
+        await tx.court.create({
+          data: {
+            no: countNo,
+            sessionId: createdSession.id,
+            name: courtName,
+            createdBy: actorId,
+            updatedBy: actorId,
+          },
+        });
       }
 
       return createdSession;
@@ -49,8 +51,9 @@ export async function createSession(params: CreateSessionInput) {
 }
 
 export async function getSessionByRoomCode(
-  roomCode: string
+  roomCode: string,
 ): Promise<ResponseSession | null> {
+  console.log("Getting session by room code:", roomCode);
   const session = await prisma.session.findFirst({
     where: {
       roomCode,
@@ -88,6 +91,34 @@ export async function patchSession(params: {
     return { id: result.id };
   } catch (error) {
     console.error("Error patch session:", error);
+    throw error;
+  }
+}
+
+export async function updateIsRandomSession(roomCode: string) {
+  try {
+    const session = await prisma.session.findFirst({
+      where: {
+        roomCode,
+      },
+    });
+
+    if (!session) return;
+
+    const actorId = "00000000-0000-0000-0000-000000000000";
+
+    const result = await prisma.session.update({
+      where: { id: session.id },
+      data: {
+        isRandom: true,
+        updatedDate: new Date(),
+        updatedBy: actorId,
+      },
+    });
+
+    return { id: result.id };
+  } catch (error) {
+    console.error("Error update isRandom session:", error);
     throw error;
   }
 }

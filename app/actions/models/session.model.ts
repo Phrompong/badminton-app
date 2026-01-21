@@ -7,6 +7,7 @@ export interface CreateSessionInput {
   roomCode: string;
   createdBy?: string | null;
   amountPerGame: number;
+  courtNames: string[];
 }
 
 export interface ResponseSession {
@@ -19,6 +20,7 @@ export interface ResponseSession {
   roomCode: string;
   amountPerGame: number;
   isActive: boolean;
+  isRandom: boolean;
   createdDate: Date;
   updatedDate: Date;
   createdBy: string;

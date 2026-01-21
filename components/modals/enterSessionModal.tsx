@@ -1,5 +1,6 @@
-import { Form, Input, Modal } from "antd";
+import { Form, FormInstance, Input, Modal } from "antd";
 import { FC } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const title = () => {
   return (
@@ -12,14 +13,24 @@ const title = () => {
   );
 };
 
-const footer = () => {
+const footer = (form: FormInstance, onCancel: () => void) => {
   return (
     <>
       <div className="flex gap-2">
-        <button className="border border-1 p-1 rounded-md w-full border-gray-400 hover:bg-gray-100">
+        <button
+          type="button"
+          className="border border-1 p-1 rounded-md w-full border-gray-400 hover:bg-gray-100"
+          onClick={onCancel}
+        >
           ยกเลิก
         </button>
-        <button className="border border-1 p-1 rounded-md w-full bg-[#00986E] text-white hover:bg-[#007a53]">
+        <button
+          type="button"
+          className="border border-1 p-1 rounded-md w-full bg-[#00986E] text-white hover:bg-[#007a53]"
+          onClick={() => {
+            form.submit();
+          }}
+        >
           เข้าสู่เซสชัน
         </button>
       </div>
@@ -33,27 +44,38 @@ interface IEnterSessionModalProps {
 }
 
 const EnterSessionModal: FC<IEnterSessionModalProps> = ({ open, onCancel }) => {
+  const [form] = Form.useForm();
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  const handleSubmitForm = (values: any) => {
+    const params = new URLSearchParams(searchParams.toString());
+
+    params.set("code", values.sessionKey);
+    router.replace(`?${params.toString()}`);
+    onCancel?.();
+  };
+
   return (
-    <Modal title={title()} open={open} onCancel={onCancel} footer={footer()}>
+    <Modal
+      title={title()}
+      open={open}
+      onCancel={onCancel}
+      footer={footer(form, onCancel)}
+    >
       <div className="flex mt-12 w-full ">
         <Form
+          form={form}
           className="w-full"
           layout="vertical"
-          onFinish={() => {
-            alert("Ok");
-          }}
+          onFinish={handleSubmitForm}
         >
           <Form.Item<string>
             label="Session Key"
             name="sessionKey"
-            rules={[
-              { required: true, message: "Please input your session key!" },
-            ]}
+            rules={[{ required: true, message: "กรุณากรอกชื่อเซสชัน" }]}
           >
             <Input className="w-full" />
-            <span className="text-xs text-gray-500">
-              ใส่ key 6 ตัวอักษรที่ได้ตอนสร้างเซสชัน
-            </span>
           </Form.Item>
         </Form>
       </div>

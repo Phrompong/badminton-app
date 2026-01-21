@@ -1,6 +1,9 @@
 "use client";
 import { getAllPlayers } from "@/app/actions/player";
-import { getSessionByRoomCode } from "@/app/actions/session";
+import {
+  getSessionByRoomCode,
+  updateIsRandomSession,
+} from "@/app/actions/session";
 import { Modal } from "antd";
 import { useSearchParams } from "next/navigation";
 import { FC, useEffect, useState } from "react";
@@ -8,9 +11,8 @@ import { motion } from "motion/react";
 import NotYetRandom from "./notYetRandom";
 import Random from "./random";
 import {
-  createRandomPlayers,
+  createTransactionRandom,
   getTransactionRandom,
-  getTransactionRandomByPlayerId,
 } from "@/app/actions/transactionRandom";
 import { getCourtAvailable } from "@/app/actions/court";
 import _ from "lodash";
@@ -19,8 +21,6 @@ interface IRandomPlayerModalProps {
   open: boolean;
   onClose: () => void;
 }
-
-const court = [1, 2, 3, 4, 5];
 
 const RandomPlayerModal: FC<IRandomPlayerModalProps> = ({ open, onClose }) => {
   const [session, setSession] = useState<any>();
@@ -43,10 +43,16 @@ const RandomPlayerModal: FC<IRandomPlayerModalProps> = ({ open, onClose }) => {
     setSession(session);
 
     // * ตรวจสอบว่ามีการสุ่มไปแล้วหรือยัง
-    const transactionRandom = await getTransactionRandom(code || "");
 
-    if (transactionRandom && transactionRandom.length > 0) {
+    if (session.isRandom) {
       setIsRandom(true);
+
+      if (resultsRandom.length === 0) {
+        const transactions = await getTransactionRandom(session.id);
+
+        if (!transactions || transactions?.length === 0) {
+        }
+      }
     }
   };
 
@@ -55,16 +61,35 @@ const RandomPlayerModal: FC<IRandomPlayerModalProps> = ({ open, onClose }) => {
   }, [code, open]);
 
   useEffect(() => {
-    console.log(resultsRandom);
+    if (resultsRandom.length === 0) return;
+
+    for (const itemRandom of resultsRandom) {
+      const bodyTransactionRandom = {
+        sessionId: session!.id,
+        courtId: itemRandom.courtId,
+        createdDate: new Date(),
+        createdBy: "00000000-0000-0000-0000-000000000000",
+        updatedDate: new Date(),
+        updatedBy: "00000000-0000-0000-0000-000000000000",
+        playerId_A1: itemRandom.teamA[0].id,
+        playerId_A2: itemRandom.teamA[1].id,
+        playerId_B3: itemRandom.teamB[0].id,
+        playerId_B4: itemRandom.teamB[1].id,
+      };
+
+      createTransactionRandom([bodyTransactionRandom]);
+    }
   }, [resultsRandom]);
 
-  const random = (players: any[], courts: any[]) => {
+  const random = async (players: any[], courts: any[]) => {
     let results: any[] = [];
 
     const shuffledPlayers = _.sampleSize(players, 4);
+
     const court = _.sampleSize(courts, 1)[0];
 
     results.push({
+      courtId: court?.id,
       court: court?.name,
       teamA: [shuffledPlayers[0], shuffledPlayers[1]],
       teamB: [shuffledPlayers[2], shuffledPlayers[3]],
@@ -74,7 +99,7 @@ const RandomPlayerModal: FC<IRandomPlayerModalProps> = ({ open, onClose }) => {
 
     // * Remove ผู้เล่นที่ถูกสุ่มออกจาก players
     const remainingPlayers = players.filter(
-      (p) => !shuffledPlayers.includes(p)
+      (p) => !shuffledPlayers.includes(p),
     );
 
     // * Remove สนามที่ถูกสุ่มออกจาก courts
@@ -97,20 +122,16 @@ const RandomPlayerModal: FC<IRandomPlayerModalProps> = ({ open, onClose }) => {
     // * ตรวจสอบ court ก่อนว่ามี court ไหนว่างบ้าง
     const courtAvailable = (await getCourtAvailable(session.roomCode)) ?? [];
 
-    random(playerReady, courtAvailable);
+    if (courtAvailable.length === 0) {
+      alert("ไม่มีสนามว่างสำหรับการสุ่ม");
+      return;
+    }
+
+    await random(playerReady, courtAvailable);
     setIsRandom(true);
 
-    // await createRandomPlayers(
-    //   results.map((item: any) => ({
-    //     sessionId: session.id,
-    //     playerId_A1: item.teamA[0].id,
-    //     playerId_A2: item.teamA[1].id,
-    //     playerId_B3: item.teamB[0].id,
-    //     playerId_B4: item.teamB[1].id,
-    //     createdBy: "00000000-0000-0000-0000-000000000000",
-    //     updatedBy: "00000000-0000-0000-0000-000000000000",
-    //   }))
-    // );
+    // * อัพเดทสถานะการสุ่มใน session
+    await updateIsRandomSession(session.roomCode);
   };
 
   return (
@@ -122,7 +143,7 @@ const RandomPlayerModal: FC<IRandomPlayerModalProps> = ({ open, onClose }) => {
       footer={null}
     >
       {isRandom ? (
-        <Random session={session} data={resultsRandom} />
+        <Random session={session} />
       ) : (
         <NotYetRandom
           handleClickRandom={handleClickRandom}
