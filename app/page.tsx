@@ -18,6 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Session from "./pages/session";
 import Main from "./pages/main";
 import ConfirmModal from "@/components/modals/confirmModal";
+import { motion } from "motion/react";
 
 export default function Page() {
   const searchParams = useSearchParams();
@@ -70,7 +71,23 @@ export default function Page() {
         {code ? (
           <header className="bg-gradient-to-r from-slate-800 via-gray-800 to-slate-900 border-b border-slate-700/50 sticky w-screen top-0 shadow-xl p-8">
             <div className="max-w-7xl mx-auto flex justify-between items-center flex-wrap gap-4">
-              <span className="text-white">Badminton</span>
+              <div className="flex items-center gap-4">
+                <motion.div
+                  animate={{ rotate: [0, -10, 10, -10, 0] }}
+                  transition={{
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }}
+                  className="text-4xl sm:text-8xl md:text-4xl"
+                >
+                  🏸
+                </motion.div>
+                <span className="bg-gradient-to-r from-white via-emerald-100 to-teal-100 bg-clip-text text-transparent text-2xl">
+                  Badminton
+                </span>
+              </div>
+
               <div className="flex justify-start gap-2">
                 <Button
                   text="Import"
@@ -86,6 +103,7 @@ export default function Page() {
                   text="Random"
                   Icon={Shuffle}
                   onClick={() => setIsRandomPlayerModalOpen((prev) => !prev)}
+                  className="bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-white font-medium shadow-lg shadow-emerald-500/20"
                 />
               </div>
             </div>

@@ -6,6 +6,9 @@ import { DownOutlined } from "@ant-design/icons";
 import { createPlayer } from "@/app/actions/player";
 import { getSessionByRoomCode } from "@/app/actions/session";
 import { useSearchParams } from "next/navigation";
+import Footer from "../footer";
+import Title from "../title";
+import { Upload } from "lucide-react";
 
 const levelOptions = [
   { key: "BG", label: "BG – Beginner (มือใหม่)" },
@@ -46,25 +49,6 @@ interface IPlayer {
   level: string;
 }
 
-const Footer = ({ onClear, onImport }: IImportPlayerFooterProps) => {
-  return (
-    <div className="flex justify-center w-full gap-2">
-      <button
-        onClick={onClear}
-        className="border border-1 p-1 rounded-md w-full border-gray-400 hover:bg-gray-100"
-      >
-        ล้างข้อมูล
-      </button>
-      <button
-        onClick={onImport}
-        className="border border-1 p-1 rounded-md w-full bg-[#00986E] text-white hover:bg-[#007a53]"
-      >
-        น้ำข้อมูลเข้า
-      </button>
-    </div>
-  );
-};
-
 export const ImportPlayerModal: FC<IImportPlayerModalProps> = ({
   open = false,
   onCancel,
@@ -94,7 +78,7 @@ export const ImportPlayerModal: FC<IImportPlayerModalProps> = ({
 
   const handleChangeLevel = (index: number, level: string) => {
     setPreviewPlayers((prev) =>
-      prev.map((player, i) => (i === index ? { ...player, level } : player))
+      prev.map((player, i) => (i === index ? { ...player, level } : player)),
     );
   };
 
@@ -111,7 +95,7 @@ export const ImportPlayerModal: FC<IImportPlayerModalProps> = ({
       _players.map((name) => ({
         name,
         level: "BG",
-      }))
+      })),
     );
   };
 
@@ -128,18 +112,30 @@ export const ImportPlayerModal: FC<IImportPlayerModalProps> = ({
 
   return (
     <Modal
-      title={title()}
+      title={
+        <Title
+          icon={
+            <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
+              <Upload className="w-6 h-6 text-white" />
+            </div>
+          }
+          text="เพิ่มผู้เล่น"
+        />
+      }
       open={open}
       onCancel={onCancel}
       footer={
         <Footer
-          onClear={() => setPlayers("")}
-          onImport={() => handleImportPlayers()}
+          text="น้ำข้อมูลเข้า"
+          isCancel={true}
+          textCancel="ล้างข้อมูล"
+          handleClickSubmit={() => handleImportPlayers()}
+          handleClickCancel={() => setPlayers("")}
         />
       }
     >
       <div className="flex flex-col gap-4">
-        <div className="flex flex-col border border-blue-300 p-4 rounded-md gap-2 ">
+        <div className="flex flex-col border border-blue-300 bg-blue-50 p-4 rounded-md  ">
           <span className="text-sm font-bold text-blue-600">วิธีใช้</span>
           <ul className="list-disc p-2 flex flex-col gap-2 ml-4">
             <li className="text-sm font-bold text-blue-600">
@@ -158,12 +154,13 @@ export const ImportPlayerModal: FC<IImportPlayerModalProps> = ({
         </div>
 
         <div>
-          <span>รายชื่อผู้เล่น</span>
+          <span className="font-bold">รายชื่อผู้เล่น</span>
         </div>
 
         <TextArea
           onChange={(e) => setPlayers(e.target.value)}
           value={players}
+          rows={8}
         />
 
         {previewPlayers.length > 0 && (

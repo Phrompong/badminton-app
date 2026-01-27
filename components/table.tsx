@@ -98,7 +98,15 @@ const Table: FC<ITableProps> = ({
               <td className="p-4 text-center align-middle">{row.level}</td>
               <td className="p-4 text-center align-middle">{row.games}</td>
               <td className="p-4 text-center align-middle">
-                {row.isPaid ? "ชำระแล้ว" : "ค้างชำระ"}
+                {row.isPaid ? (
+                  <span className="border border-1 w-auto rounded-md p-1 bg-green-100 text-green-700 border-green-200">
+                    ชำระแล้ว
+                  </span>
+                ) : (
+                  <span className="border border-1 w-auto rounded-md p-1 bg-orange-100 text-orange-700 border-orange-200">
+                    รอชำระ
+                  </span>
+                )}
               </td>
               <td className="p-4 text-center flex justify-center align-middle flex gap-2">
                 <button
