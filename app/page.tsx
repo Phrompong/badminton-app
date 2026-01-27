@@ -93,15 +93,7 @@ export default function Page() {
         ) : (
           <></>
         )}
-        <main>
-          {code ? (
-            <div className="max-w-7xl mx-auto flex flex-col gap-6">
-              <Main refresh={refresh} />
-            </div>
-          ) : (
-            <Session />
-          )}
-        </main>
+        <main>{code ? <Main refresh={refresh} /> : <Session />}</main>
       </div>
 
       <ImportPlayerModal

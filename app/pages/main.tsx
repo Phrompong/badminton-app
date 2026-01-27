@@ -55,11 +55,36 @@ const Main: FC<IMainProps> = ({ refresh }) => {
     const players = await getPlayersBySessionId(session.id);
 
     const cards = [
-      { title: "Total Players", total: players.length },
-      { title: "Present", total: players.filter((p) => p.isOnline).length },
-      { title: "Paid", total: players.filter((p) => p.isPaid).length },
-      { title: "Unpaid", total: players.filter((p) => !p.isPaid).length },
-      { title: "Courts", total: session.courtCount },
+      {
+        title: "Total Players",
+        total: players.length,
+        containerStyle:
+          "bg-gradient-to-br from-indigo-600/90 via-blue-600/90 to-cyan-600/90 backdrop-blur-xl rounded-2xl p-5 border border-indigo-400/50 shadow-xl hover:shadow-2xl hover:shadow-indigo-500/20 hover:scale-105 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden",
+      },
+      {
+        title: "Present",
+        total: players.filter((p) => p.isOnline).length,
+        containerStyle:
+          "bg-gradient-to-br from-emerald-500/90 via-teal-500/90 to-cyan-500/90 backdrop-blur-xl rounded-2xl p-5 border border-emerald-400/50 shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 hover:scale-105 hover:-translate-y-1 transition-all duration-300 relative overflow-hidden group",
+      },
+      {
+        title: "Paid",
+        total: players.filter((p) => p.isPaid).length,
+        containerStyle:
+          "bg-gradient-to-br from-emerald-600/90 via-green-600/90 to-teal-600/90 backdrop-blur-xl rounded-2xl p-5 border border-emerald-400/50 shadow-xl hover:shadow-2xl hover:shadow-emerald-500/20 hover:scale-105 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden",
+      },
+      {
+        title: "Unpaid",
+        total: players.filter((p) => !p.isPaid).length,
+        containerStyle:
+          "bg-gradient-to-br from-rose-500/90 via-pink-500/90 to-fuchsia-500/90 backdrop-blur-xl rounded-2xl p-5 border border-rose-400/50 shadow-xl hover:shadow-2xl hover:shadow-rose-500/20 hover:scale-105 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden",
+      },
+      {
+        title: "Courts",
+        total: session.courtCount,
+        containerStyle:
+          "bg-gradient-to-br from-purple-600/90 via-violet-600/90 to-indigo-600/90 backdrop-blur-xl rounded-2xl p-5 border border-purple-400/50 shadow-xl hover:shadow-2xl hover:shadow-purple-500/20 hover:scale-105 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden",
+      },
     ];
 
     setCardData(cards);
@@ -117,35 +142,37 @@ const Main: FC<IMainProps> = ({ refresh }) => {
       {!sessionData ? (
         <Skeleton active className="w-full" />
       ) : (
-        <>
-          <div className="flex justify-center h-[56px]">
-            <TextInput className="w-[50%]" />
-          </div>
-          <div className="flex justify-center">
-            <div className="flex items-center gap-4 flex border border-slate-200 border-2 p-2 rounded-xl hover:shadow-lg">
+        <div className="max-w-7xl mx-auto flex flex-col gap-6 py-8 px-4">
+          <section className="flex justify-center ">
+            <div className="flex items-center gap-4 bg-gradient-to-br from-orange-500/90 via-orange-400/90 to-amber-400/90 backdrop-blur-xl rounded-2xl p-5 border border-orange-400/50 shadow-xl hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-105 hover:-translate-y-1 transition-all duration-300 group relative overflow-hidden">
               <div className="flex gap-2 items-center">
-                <Users className="w-4 h-4 text-slate-500" />
-                <span className="text-[#62748E]">
+                <Users className="w-4 h-4 text-white" />
+                <span className="text-white text-xl">
                   {playersData.filter((player) => player.isOnline).length}/
                   {playersData.length}
                 </span>
               </div>
-              <span className="text-[#62748E]">|</span>
-              <div className="flex gap-4 items-center">
-                <div className="flex gap-2 items-center">
-                  <span className="text-[#62748E]">#</span>
-                  <span className="text-[#62748E]">{sessionData.roomCode}</span>
-                </div>
+              <span className="text-white items-center">|</span>
+              <div className="flex gap-2 items-center">
+                <span className="text-white text-xl">#</span>
+                <span className="text-white text-xl">
+                  {sessionData.roomCode}
+                </span>
                 <Copy
-                  className="w-3.5 h-3.5 text-slate-500 hover:text-slate-700 cursor-pointer"
+                  className="w-4 h-4 text-white hover:text-white cursor-pointer"
                   onClick={() => handleCopyRoomCode(sessionData.roomCode)}
                 />
               </div>
             </div>
-          </div>
+          </section>
           <section className="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-8 justify-stretch">
-            {cardData?.map(({ title, total }) => (
-              <Card key={title} title={title} total={total} />
+            {cardData?.map(({ title, total, containerStyle }) => (
+              <Card
+                key={title}
+                title={title}
+                total={total}
+                containerStyle={containerStyle}
+              />
             ))}
           </section>
 
@@ -184,7 +211,7 @@ const Main: FC<IMainProps> = ({ refresh }) => {
           >
             <span>คุณต้องการลบผู้เล่นนี้ใช่หรือไม่?</span>
           </ConfirmModal>
-        </>
+        </div>
       )}
     </>
   );

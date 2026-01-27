@@ -1,42 +1,9 @@
-import { Form, FormInstance, Input, Modal } from "antd";
+import { Divider, Form, FormInstance, Input, Modal } from "antd";
 import { FC } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-
-const title = () => {
-  return (
-    <div className="flex flex-col gap-2">
-      <span className="text-xl">เข้าสู่เซสชัน</span>
-      <span className="text-xs">
-        เข้าสู่เซสชัน กรอก Session Key เพื่อกลับเข้าสู่เซสชันของคุณ
-      </span>
-    </div>
-  );
-};
-
-const footer = (form: FormInstance, onCancel: () => void) => {
-  return (
-    <>
-      <div className="flex gap-2">
-        <button
-          type="button"
-          className="border border-1 p-1 rounded-md w-full border-gray-400 hover:bg-gray-100"
-          onClick={onCancel}
-        >
-          ยกเลิก
-        </button>
-        <button
-          type="button"
-          className="border border-1 p-1 rounded-md w-full bg-[#00986E] text-white hover:bg-[#007a53]"
-          onClick={() => {
-            form.submit();
-          }}
-        >
-          เข้าสู่เซสชัน
-        </button>
-      </div>
-    </>
-  );
-};
+import Footer from "../footer";
+import Title from "../title";
+import { KeyRound } from "lucide-react";
 
 interface IEnterSessionModalProps {
   open: boolean;
@@ -58,27 +25,26 @@ const EnterSessionModal: FC<IEnterSessionModalProps> = ({ open, onCancel }) => {
 
   return (
     <Modal
-      title={title()}
+      title={
+        <Title text="เข้าสู่เซสชัน" icon={<KeyRound className="w-5 h-5" />} />
+      }
       open={open}
       onCancel={onCancel}
-      footer={footer(form, onCancel)}
+      footer={
+        <Footer text="เข้าสู่เซสชัน" handleClickSubmit={() => form.submit()} />
+      }
+      centered
+      width={400}
     >
-      <div className="flex mt-12 w-full ">
-        <Form
-          form={form}
-          className="w-full"
-          layout="vertical"
-          onFinish={handleSubmitForm}
+      <Form form={form} layout="horizontal" onFinish={handleSubmitForm}>
+        <Form.Item<string>
+          label=""
+          name="sessionKey"
+          rules={[{ required: true, message: "กรุณากรอกชื่อเซสชัน" }]}
         >
-          <Form.Item<string>
-            label="Session Key"
-            name="sessionKey"
-            rules={[{ required: true, message: "กรุณากรอกชื่อเซสชัน" }]}
-          >
-            <Input className="w-full" />
-          </Form.Item>
-        </Form>
-      </div>
+          <Input className="w-full h-14" placeholder="กรุณากรอกชื่อเซสชัน" />
+        </Form.Item>
+      </Form>
     </Modal>
   );
 };
