@@ -1,4 +1,4 @@
-import type { Player } from "@/generated/prisma/client";
+import type { Player } from "@prisma/client";
 
 export interface ResponsePlayerCountInSession {
   playerInformation: Player | null;
