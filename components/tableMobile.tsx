@@ -5,8 +5,8 @@ import { FC } from "react";
 interface TableMobileProps {
   data: any[];
   className?: string;
-  handleClickPayment: () => void;
-  handleClickEditPlayer: () => void;
+  handleClickPayment: (playerId: string) => void;
+  handleClickEditPlayer: (playerId: string) => void;
 }
 
 const TableMobile: FC<TableMobileProps> = ({
@@ -41,13 +41,13 @@ const TableMobile: FC<TableMobileProps> = ({
 
           <div className="grid grid-cols-[2fr_auto_auto] gap-2">
             <button
-              onClick={handleClickPayment}
+              onClick={() => handleClickPayment(row.id)}
               className="border  border-[#94a3b8] p-1 rounded-md hover:bg-[#DDF7F0] cursor-pointer"
             >
               <span className="text-[#324158] text-sm ">ดูค่าใช้จ่าย</span>
             </button>
             <button
-              onClick={handleClickEditPlayer}
+              onClick={() => handleClickEditPlayer(row.id)}
               className="border  border-[#94a3b8] cursor-pointer p-1 hover:bg-[#DDE6FF] rounded-md"
             >
               <Edit2 className="text-[#5375EE] hover:text-[#000]" />

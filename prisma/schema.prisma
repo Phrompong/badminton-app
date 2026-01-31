@@ -1,0 +1,101 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Session {
+  id            String   @id @default(uuid()) @db.Uuid
+  name          String   @db.VarChar(255)
+  startAt       DateTime @map("start_at") @db.Timestamptz(6)
+  location      String   @db.VarChar(255)
+  playerCount   Int      @default(0) @map("player_count")
+  courtCount    Int      @map("court_count")
+  roomCode      String   @unique @map("room_code") @db.VarChar(255)
+  amountPerGame Decimal  @map("amount_per_game") @db.Decimal(10, 2)
+  createdDate   DateTime @default(now()) @map("created_date") @db.Timestamptz(6)
+  createdBy     String   @map("created_by") @db.Uuid
+  updatedDate   DateTime @default(now()) @updatedAt @map("updated_date") @db.Timestamptz(6)
+  updatedBy     String   @map("updated_by") @db.Uuid
+  isActive      Boolean  @default(true) @map("is_active")
+  isRandom      Boolean  @default(false) @map("is_random")
+
+  players            Player[]
+  transactionRandoms Transaction_Random[]
+  courts             Court[]
+
+  @@map("sessions")
+}
+
+model Player {
+  id           String    @id @default(uuid()) @db.Uuid
+  sessionId    String    @map("session_id") @db.Uuid
+  name         String    @db.VarChar(255)
+  level        String    @db.VarChar(255)
+  isOnline     Boolean   @default(false) @map("is_online")
+  isPaid       Boolean   @default(false) @map("is_paid")
+  isActive     Boolean   @default(true) @map("is_active")
+  isPlaying    Boolean   @default(false) @map("is_playing")
+  playingSince DateTime? @map("playing_since") @db.Timestamptz(6)
+  createdDate  DateTime  @default(now()) @map("created_date") @db.Timestamptz(6)
+  createdBy    String    @map("created_by") @db.Uuid
+  updatedDate  DateTime  @default(now()) @updatedAt @map("updated_date") @db.Timestamptz(6)
+  updatedBy    String    @map("updated_by") @db.Uuid
+
+  session Session @relation(fields: [sessionId], references: [id])
+
+  randomAsP1 Transaction_Random[] @relation("TR_Player1")
+  randomAsP2 Transaction_Random[] @relation("TR_Player2")
+  randomAsP3 Transaction_Random[] @relation("TR_Player3")
+  randomAsP4 Transaction_Random[] @relation("TR_Player4")
+
+  @@map("player")
+}
+
+model Court {
+  id          String   @id @default(uuid()) @db.Uuid
+  sessionId   String   @map("session_id") @db.Uuid
+  no          Int      @db.Integer
+  name        String   @db.VarChar(255)
+  isAvailable Boolean  @default(true) @map("is_available")
+  isDeleted   Boolean  @default(false) @map("is_deleted")
+  createdDate DateTime @default(now()) @map("created_date") @db.Timestamptz(6)
+  createdBy   String   @map("created_by") @db.Uuid
+  updatedDate DateTime @default(now()) @updatedAt @map("updated_date") @db.Timestamptz(6)
+  updatedBy   String   @map("updated_by") @db.Uuid
+
+  session           Session              @relation(fields: [sessionId], references: [id])
+  transactionRandom Transaction_Random[] @relation("TR_Court")
+
+  @@map("court")
+}
+
+model Transaction_Random {
+  id          String   @id @default(uuid()) @db.Uuid
+  courtId     String   @map("court_id") @db.Uuid
+  playerId_A1 String   @map("player_id_A1") @db.Uuid
+  playerId_A2 String   @map("player_id_A2") @db.Uuid
+  playerId_B3 String   @map("player_id_B3") @db.Uuid
+  playerId_B4 String   @map("player_id_B4") @db.Uuid
+  sessionId   String   @map("session_id") @db.Uuid
+  isEndGame   Boolean  @default(false) @map("is_end_game")
+  isTemp      Boolean  @default(false) @map("is_temp")
+  createdDate DateTime @default(now()) @map("created_date") @db.Timestamptz(6)
+  createdBy   String   @map("created_by") @db.Uuid
+  updatedDate DateTime @default(now()) @updatedAt @map("updated_date") @db.Timestamptz(6)
+  updatedBy   String   @map("updated_by") @db.Uuid
+
+  session Session @relation(fields: [sessionId], references: [id])
+
+  player1 Player @relation("TR_Player1", fields: [playerId_A1], references: [id])
+  player2 Player @relation("TR_Player2", fields: [playerId_A2], references: [id])
+  player3 Player @relation("TR_Player3", fields: [playerId_B3], references: [id])
+  player4 Player @relation("TR_Player4", fields: [playerId_B4], references: [id])
+  court   Court? @relation("TR_Court", fields: [courtId], references: [id])
+
+  @@map("transaction_random")
+}
