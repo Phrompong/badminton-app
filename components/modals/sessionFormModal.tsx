@@ -5,6 +5,7 @@ import { DatePicker, Form, Input, Modal, TimePicker } from "antd";
 import type { Dayjs } from "dayjs";
 import { message } from "antd";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 import Courts from "../courts";
 import Footer from "../footer";
 import Title from "../title";
@@ -36,6 +37,12 @@ const SessionModal = ({ open, onCancel }: ISessionModalProps) => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const courtCount = Form.useWatch("courtCount", form);
+
+  useEffect(() => {
+    if (!open) {
+      form.resetFields();
+    }
+  }, [open, form]);
 
   const handleSubmitForm = async (value: SessionFormValues) => {
     try {

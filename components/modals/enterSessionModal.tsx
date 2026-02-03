@@ -1,5 +1,5 @@
 import { Form, Input, Modal } from "antd";
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Footer from "../footer";
 import Title from "../title";
@@ -14,6 +14,12 @@ const EnterSessionModal: FC<IEnterSessionModalProps> = ({ open, onCancel }) => {
   const [form] = Form.useForm();
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  useEffect(() => {
+    if (!open) {
+      form.resetFields();
+    }
+  }, [open, form]);
 
   const handleSubmitForm = (values: any) => {
     const params = new URLSearchParams(searchParams.toString());

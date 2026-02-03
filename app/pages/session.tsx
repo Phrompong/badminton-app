@@ -1,7 +1,10 @@
-import EnterSessionModal from "@/components/modals/enterSessionModal";
-import SessionModal from "@/components/modals/sessionFormModal";
 import { KeyRound, Plus, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
+
+const SessionModal = lazy(() => import("@/components/modals/sessionFormModal"));
+const EnterSessionModal = lazy(
+  () => import("@/components/modals/enterSessionModal"),
+);
 
 const Session = () => {
   const [isSessionModalOpen, setIsSessionModalOpen] = useState<boolean>(false);
@@ -46,17 +49,21 @@ const Session = () => {
         </div>
       </div>
 
-      {isSessionModalOpen && (
-        <SessionModal
-          open={isSessionModalOpen}
-          onCancel={() => setIsSessionModalOpen(false)}
-        />
-      )}
+      <Suspense fallback={null}>
+        {isSessionModalOpen && (
+          <SessionModal
+            open={isSessionModalOpen}
+            onCancel={() => setIsSessionModalOpen(false)}
+          />
+        )}
 
-      <EnterSessionModal
-        open={isEnterSessionModalOpen}
-        onCancel={() => setIsEnterSessionModalOpen(false)}
-      />
+        {isEnterSessionModalOpen && (
+          <EnterSessionModal
+            open={isEnterSessionModalOpen}
+            onCancel={() => setIsEnterSessionModalOpen(false)}
+          />
+        )}
+      </Suspense>
     </>
   );
 };
